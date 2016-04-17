@@ -25,6 +25,11 @@ class SDNIP(app_manager.RyuApp):
                  peer_down_handler=self.peer_down_handler,
                  peer_up_handler=self.peer_up_handler)
 
+        speaker_ids = self.cfg_mgr.get_all_speaker_id()
+
+        for speaker_id in speaker_ids:
+            self.bgp_speaker.neighbor_add(speaker_id, self.cfg_mgr.as_number, is_next_hop_self=True)
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packet_in_handler(self, ev):
         msg = ev.msg
