@@ -113,4 +113,4 @@ class Fwd(app_manager.RyuApp):
             dpid = dp.id
             self.dps[dpid] = dp
 
-        return self.dps
+        return self.dps.values()
