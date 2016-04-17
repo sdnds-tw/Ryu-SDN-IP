@@ -4,6 +4,7 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0, ofproto_v1_3
+from ryu.lib import hub
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
@@ -11,16 +12,19 @@ from ryu.topology import api as topo_api
 from ryu.services.protocols.bgp.bgpspeaker import BGPSpeaker
 from conf_mgr import SDNIPConfigManager
 from fwd import Fwd
+from hop_db import HopDB
 
 class SDNIP(app_manager.RyuApp):
 
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
     _CONTEXTS = {
-        'fwd': Fwd
+        'fwd': Fwd,
+        'hop_db': HopDB
     }
     def __init__(self, *args, **kwargs):
         super(SDNIP, self).__init__(*args, **kwargs)
         self.fwd = kwargs['fwd']
+        self.hop_db = kwargs['hop_db']
         self.cfg_mgr = SDNIPConfigManager('config.json')
         self.logger.info("Creating speaker with as number: %d, router id: %s, port: %d",
                          self.cfg_mgr.as_number, self.cfg_mgr.router_id, self.cfg_mgr.listen_port)
@@ -35,6 +39,8 @@ class SDNIP(app_manager.RyuApp):
         for speaker_id in speaker_ids:
             self.bgp_speaker.neighbor_add(speaker_id, self.cfg_mgr.as_number, is_next_hop_self=True)
 
+        hub.spawn(self.prefix_check_loop)
+
     def best_path_change_handler(self, ev):
         self.logger.info('best path changed:')
         self.logger.info('remote_as: %d', ev.remote_as)
@@ -44,6 +50,7 @@ class SDNIP(app_manager.RyuApp):
         self.logger.info('label: %s', ev.label)
         self.logger.info('is_withdraw: %s', ev.is_withdraw)
         self.logger.info('')
+        self.hop_db.add_hop(ev.prefix, ev.nexthop)
         self.install_best_path(ev.prefix, ev.nexthop)
 
     def peer_down_handler(self, remote_ip, remote_as):
@@ -67,6 +74,17 @@ class SDNIP(app_manager.RyuApp):
 
         return None
 
+    def prefix_check_loop(self):
+
+        while True:
+            prefixs_to_install = self.hop_db.get_uninstalled_prefix_list()
+
+            for prefix in prefixs_to_install:
+                nexthop = self.hop_db.get_nexthop(prefix)
+                self.install_best_path(prefix, nexthop)
+
+            hub.sleep(3000)
+
     def install_best_path(self, prefix, nexthop):
 
         nexthop_host = self.get_nexthop_host(nexthop)
@@ -89,3 +107,5 @@ class SDNIP(app_manager.RyuApp):
             pre_actions = [dp.ofproto_parser.OFPActionSetField(eth_dst=nexthop_mac)]
 
             self.fwf.setup_shortest_path(from_dpid, nexthop_dpid, nexthop_port_no, nexthop_match, pre_actions)
+
+        self.hop_db.install_prefix(prefix)
