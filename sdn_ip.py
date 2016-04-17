@@ -83,7 +83,7 @@ class SDNIP(app_manager.RyuApp):
                 nexthop = self.hop_db.get_nexthop(prefix)
                 self.install_best_path(prefix, nexthop)
 
-            hub.sleep(3000)
+            hub.sleep(3)
 
     def install_best_path(self, prefix, nexthop):
 
