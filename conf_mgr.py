@@ -8,8 +8,15 @@ class SDNIPConfigManager(object):
         self.per_id = {}
         self.per_dpid = {}
         speakers = []
+
         with open(self.config_file_path, 'r') as config_file:
-            speakers = json.load(config_file)
+            configs = json.load(config_file)
+
+        speakers = configs['speakers']
+        local_config = configs['local']
+        self.as_number = local_config.get('as_number', 65113)
+        self.router_id = local_config('router_id', '127.0.0.1')
+        self.listen_port = local_config('listen_port', 2000)
 
         for speaker in speakers:
             dpid = speaker['dpid']
@@ -27,7 +34,13 @@ class SDNIPConfigManager(object):
         self.per_dpid = {}
         speakers = []
         with open(self.config_file_path, 'r') as config_file:
-            speakers = json.load(config_file)
+            configs = json.load(config_file)
+
+        speakers = configs['speakers']
+        local_config = configs['local']
+        self.as_number = local_config.get('as_number', 65113)
+        self.router_id = local_config('router_id', '127.0.0.1')
+        self.listen_port = local_config('listen_port', 2000)
 
         for speaker in speakers:
             dpid = speaker['dpid']
