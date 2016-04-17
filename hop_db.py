@@ -7,3 +7,6 @@ class HopDB(object):
 
     def add_hop(self, prefix, next_hop):
         self.hops.setdefault(prefix, next_hop)
+
+    def get_next_hop(self, prefix):
+        self.hops.get(prefix)
