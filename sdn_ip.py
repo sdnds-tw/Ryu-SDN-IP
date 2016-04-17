@@ -78,6 +78,7 @@ class SDNIP(app_manager.RyuApp):
 
         while True:
             prefixs_to_install = self.hop_db.get_uninstalled_prefix_list()
+            self.logger.debug("prefix to install: %s", str(prefixs_to_install))
 
             for prefix in prefixs_to_install:
                 nexthop = self.hop_db.get_nexthop(prefix)
@@ -88,7 +89,7 @@ class SDNIP(app_manager.RyuApp):
     def install_best_path(self, prefix, nexthop):
 
         nexthop_host = self.get_nexthop_host(nexthop)
-
+        self.logger.debug("nexthop host: %s", str(nexthop_host))
         if nexthop_host is None:
             return
 
