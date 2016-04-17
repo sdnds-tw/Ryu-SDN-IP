@@ -21,7 +21,7 @@ class Fwd(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
-        super(FwdBGP, self).__init__(*args, **kwargs)
+        super(Fwd, self).__init__(*args, **kwargs)
         self.dps = {}
 
     def setup_shortest_path(self, from_dpid, to_dpid, to_port_no, to_dst_match, pre_actions=[]):

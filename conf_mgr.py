@@ -62,5 +62,5 @@ class SDNIPConfigManager(object):
     def get_all_speakers_by_dpid(self, dpid):
         return self.per_dpid[dpid]
 
-    def get_speaker_mac(self, bgp_speaker_id)
+    def get_speaker_mac(self, bgp_speaker_id):
         return self.per_id.get(bgp_speaker_id)['mac']
