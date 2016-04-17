@@ -4,9 +4,22 @@ class HopDB(object):
     def __init__(self):
         super(HopDB, self).__init__()
         self.hops = {}  # prefix -> hop
+        self.installed_prefix = []
 
     def add_hop(self, prefix, next_hop):
         self.hops.setdefault(prefix, next_hop)
 
-    def get_next_hop(self, prefix):
+    def get_nexthop(self, prefix):
         self.hops.get(prefix)
+
+    def is_prefix_installed(self, prefix):
+        return (prefix in self.installed_prefix)
+
+    def get_uninstalled_prefix_list(self):
+        result = [prefix for prefix in self.hops.keys() if (prefix not in self.installed_prefix)]
+        for prefix in hops.keys():
+            if not self.is_prefix_installed(prefix):
+                result.append(prefix)
+
+    def install_prefix(self, prefix):
+        self.installed_prefix.append(prefix)
