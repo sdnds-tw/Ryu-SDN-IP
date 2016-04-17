@@ -43,6 +43,7 @@ class FwdBGP(app_manager.RyuApp):
         ipv4_header = pkt.get_protocol(ipv4.ipv4)
         src_ip = ipv4_header.src
         dst_ip = ipv4_header.dst
+        self.logger.info("BGP from %s to %s", src_ip, dst_ip)
 
         # create a path from src to dst
         hosts = topo_api.get_all_host(self)
