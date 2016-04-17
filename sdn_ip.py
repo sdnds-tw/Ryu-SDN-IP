@@ -7,7 +7,7 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu.services.protocols.bgp.bgpspeaker import BGPSpeaker
-from .conf_mgr import SDNIPConfigManager
+from conf_mgr import SDNIPConfigManager
 
 
 class SDNIP(app_manager.RyuApp):
@@ -17,7 +17,7 @@ class SDNIP(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SDNIP, self).__init__(*args, **kwargs)
         self.cfg_mgr = SDNIPConfigManager('config.json')
-        self.logger.info("Creating speaker with as number: {}, router id: {}, port: {}",
+        self.logger.info("Creating speaker with as number: %d, router id: %s, port: %d",
                          self.cfg_mgr.as_number, self.cfg_mgr.router_id, self.cfg_mgr.listen_port)
         self.bgp_speaker = BGPSpeaker(self.cfg_mgr.as_number, self.cfg_mgr.router_id,
                  bgp_server_port=self.cfg_mgr.listen_port,
