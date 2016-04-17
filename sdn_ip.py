@@ -69,16 +69,9 @@ class SDNIP(app_manager.RyuApp):
         prefix_mask = str(IPNetwork(prefix).netmask)
 
 
-        for speaker_id in speaker_ids
-
-            if speaker_id == nexthop:
-                continue
-
-            speaker_port = self.cfg_mgr.get_speaker_connect_port(speaker_id)
-            speaker_dpid = port['dpid']
-            speaker_port_no = port['port']
-            dp = fwd.get_datapath(speaker_dpid)
+        for dp in self.fwd.get_all_datapaths():
+            from_dpid = dp.id
             nexthop_match = dp.ofproto_parser.OFPMatch(ipv4_dst=(prefix_ip, prefix_mask), eth_type=2048)
             pre_actions = [dp.ofproto_parser.OFPActionSetField(eth_dst=nexthop_mac)]
 
-            self.fwf.setup_shortest_path(speaker_dpid, nexthop_dpid, nexthop_port, nexthop_match, pre_actions)
+            self.fwf.setup_shortest_path(from_dpid, nexthop_dpid, nexthop_port_no, nexthop_match, pre_actions)

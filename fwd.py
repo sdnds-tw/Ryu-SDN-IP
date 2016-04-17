@@ -1,5 +1,17 @@
 import networkx as nx
-
+from ryu.base import app_manager
+from ryu.controller import ofp_event
+from ryu.controller.handler import MAIN_DISPATCHER
+from ryu.controller.handler import set_ev_cls
+from ryu.ofproto import ofproto_v1_3
+from ryu.lib.ip import ipv4_to_bin
+from ryu.lib.mac import haddr_to_bin
+from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet
+from ryu.lib.packet import ether_types
+from ryu.lib.packet import tcp, udp
+from ryu.lib.packet import ipv4, arp
+from ryu.topology import api as topo_api
 
 
 class Fwd(app_manager.RyuApp):
@@ -91,3 +103,13 @@ class Fwd(app_manager.RyuApp):
             return switch.dp
 
         return self.dps[dpid]
+
+    def get_all_datapaths(self):
+        switches = topo_api.get_all_switch(self)
+
+        for switch in switches:
+            dp = switch.dp
+            dpid = dp.id
+            self.dps[dpid] = dp
+
+        return self.dps
