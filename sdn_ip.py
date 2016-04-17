@@ -58,13 +58,27 @@ class SDNIP(app_manager.RyuApp):
         self.logger.info('remote ip: %s', remote_ip)
         self.logger.info('')
 
+    def get_nexthop_host(self, ip):
+        hosts = topo_api.get_all_host(self)
+
+        for host in hosts:
+            if ip in host.ipv4:
+                return host
+
+        return None
+
     def install_best_path(self, prefix, nexthop):
 
+        nexthop_host = self.get_nexthop_host(nexthop)
+
+        if nexthop_host is None:
+            return
+
         speaker_ids = self.cfg_mgr.get_all_speaker_id()
-        nexthop_port = self.cfg_mgr.get_speaker_connect_port(nexthop)
-        nexthop_mac = self.cfg_mgr.get_speaker_mac(nexthop)
-        nexthop_dpid = nexthop_port['dpid']
-        nexthop_port_no = nexthop_port['port']
+        nexthop_port = nexthop_host.port
+        nexthop_mac = nexthop_host.mac
+        nexthop_dpid = nexthop_port.dpid
+        nexthop_port_no = nexthop_port.port_no
         prefix_ip = str(IPNetwork(prefix).ip)
         prefix_mask = str(IPNetwork(prefix).netmask)
 
