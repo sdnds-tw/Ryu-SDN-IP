@@ -42,28 +42,21 @@ class SDNIP(app_manager.RyuApp):
             return
 
     def best_path_change_handler(self, ev):
-        self.logger.debug('best path changed:')
-        self.logger.debug('remote_as: {}', ev.remote_as)
-        self.logger.debug('route_dist: {}', ev.route_dist)
-        self.logger.debug('prefix: {}', ev.prefix)
-        self.logger.debug('nexthop: {}', ev.nexthop)
-        self.logger.debug('label: {}', ev.label)
-        self.logger.debug('is_withdraw: {}', ev.is_withdraw)
+        self.logger.info('best path changed:')
+        self.logger.info('remote_as: %d', ev.remote_as)
+        self.logger.info('route_dist: %s', ev.route_dist)
+        self.logger.info('prefix: %s', ev.prefix)
+        self.logger.info('nexthop: %s', ev.nexthop)
+        self.logger.info('label: %s', ev.label)
+        self.logger.info('is_withdraw: %s', ev.is_withdraw)
 
-    def peer_down_handler(self, ev):
-        self.logger.debug('peer down:')
-        self.logger.debug('remote_as: {}', ev.remote_as)
-        self.logger.debug('route_dist: {}', ev.route_dist)
-        self.logger.debug('prefix: {}', ev.prefix)
-        self.logger.debug('nexthop: {}', ev.nexthop)
-        self.logger.debug('label: {}', ev.label)
-        self.logger.debug('is_withdraw: {}', ev.is_withdraw)
+    def peer_down_handler(self, remote_ip, remote_as):
+        self.logger.info('peer down:')
+        self.logger.info('remote_as: %d', remote_as)
+        self.logger.info('remote ip: %s', remote_ip)
 
-    def peer_up_handler(self, ev):
-        self.logger.debug('peer up:')
-        self.logger.debug('remote_as: {}', ev.remote_as)
-        self.logger.debug('route_dist: {}', ev.route_dist)
-        self.logger.debug('prefix: {}', ev.prefix)
-        self.logger.debug('nexthop: {}', ev.nexthop)
-        self.logger.debug('label: {}', ev.label)
-        self.logger.debug('is_withdraw: {}', ev.is_withdraw)
+    def peer_up_handler(self, remote_ip, remote_as):
+        self.logger.info('peer up:')
+        self.logger.info('remote_as: %d', remote_as)
+        self.logger.info('remote ip: %s', remote_ip)
+
