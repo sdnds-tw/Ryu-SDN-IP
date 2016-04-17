@@ -12,17 +12,21 @@ from ryu.lib.packet import tcp
 from ryu.lib.packet import ether_types
 from ryu.topology import api as topo_api
 from conf_mgr import SDNIPConfigManager
-
+from fwd import Fwd
 
 class FwdBGP(app_manager.RyuApp):
     '''
     Foward BGP packet to internal BGP speakers
     '''
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    _CONTEXTS = {
+        'fwd': Fwd
+    }
 
     def __init__(self, *args, **kwargs):
         super(FwdBGP, self).__init__(*args, **kwargs)
         self.cfg_mgr = SDNIPConfigManager('config.json')
+        self.fwd = kwargs['fwd']
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -73,38 +77,11 @@ class FwdBGP(app_manager.RyuApp):
 
         src_port = src_host.port
         dst_port = dst_host.port
-        nx_grapth = self.get_nx_graph()
-        path = self.get_shortest_path(nx_grapth, src_port.dpid, dst_port.dpid)
-
-        if path is None:
-            # path doesn't exist, drop it
-            return
-
         dst_mac = dst_host.mac
         to_dst_match = dp.ofproto_parser.OFPMatch(eth_dst=dst_mac, ipv4_dst=dst_ip, eth_type=2048)
 
-        if len(path) == 1:
-            # src and dst are in same switch
-            port_no = dst_port.port_no
-            actions = [dp.ofproto_parser.OFPActionOutput(port_no)]
-            self.add_flow(dp, 1, to_dst_match, actions)
-
-            self.packet_out(dp, msg, port_no)
-
-        else:
-            self.install_path(to_dst_match, path, nx_grapth)
-
-            # install to last dp
-            dst_dpid = dst_port.dpid
-            dst_dp = self.get_datapath(dst_dpid)
-            dst_port_no = dst_port.port_no
-            actions = [dst_dp.ofproto_parser.OFPActionOutput(dst_port_no)]
-            self.add_flow(dst_dp, 1, to_dst_match, actions)
-
-            # packet out
-            port_no = nx_grapth.edge[path[0]][path[1]]['src_port']
-            self.packet_out(dp, msg, port_no)
-
+        port_no = self.fwd.setup_shortest_path(src_port.dpid, dst_port.dpid, dst_port.port_no, to_dst_match)
+        self.packet_out(dp, msg, port_no)
 
     def get_shortest_path(self, nx_graph, src_dpid, dst_dpid):
 
