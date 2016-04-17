@@ -45,12 +45,13 @@ class SDNIPConfigManager(object):
         for speaker in speakers:
             dpid = speaker['dpid']
             port = speaker['port']
+            mac = speaker['mac']
             speaker_ids = speaker['speaker_ids']
             self.per_dpid.setdeafult(dpid, [])
 
             for speaker_id in speaker_ids:
-                self.per_id.setdefault(speaker_id, {'dpid': dpid, 'port': port})
-                self.per_dpid[dpid].append({'port': port, 'id': speaker_id})
+                self.per_id.setdefault(speaker_id, {'dpid': dpid, 'port': port, 'mac': mac})
+                self.per_dpid[dpid].append({'port': port, 'id': speaker_id, 'mac': mac})
 
     def get_speaker_connect_port(self, bgp_speaker_id):
         return self.per_id.get(bgp_speaker_id)
@@ -60,3 +61,6 @@ class SDNIPConfigManager(object):
 
     def get_all_speakers_by_dpid(self, dpid):
         return self.per_dpid[dpid]
+
+    def get_speaker_mac(self, bgp_speaker_id)
+        return self.per_id.get(bgp_speaker_id)['mac']
