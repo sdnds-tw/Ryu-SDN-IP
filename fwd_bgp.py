@@ -18,11 +18,21 @@ class FwdBGP(app_manager.RyuApp):
     '''
     Foward BGP packet to internal BGP speakers
     '''
-    OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION, ofproto_v1_3.OFP_VERSION]
+    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
         super(FwdBGP, self).__init__(*args, **kwargs)
         self.cfg_mgr = SDNIPConfigManager('config.json')
+
+    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    def switch_features_handler(self, ev):
+        datapath = ev.msg.datapath
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+        match = parser.OFPMatch()
+        actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
+                                          ofproto.OFPCML_NO_BUFFER)]
+        self.add_flow(datapath, 0, match, actions)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packet_in_handler(self, ev):
@@ -70,10 +80,8 @@ class FwdBGP(app_manager.RyuApp):
             # path doesn't exist, drop it
             return
 
-        src_mac = src_host.mac
         dst_mac = dst_host.mac
-        to_src_match = dp.ofproto_parser.OFPMatch(dl_dst=src_mac, nw_dst=src_ip, dl_type=2048)
-        to_dst_match = dp.ofproto_parser.OFPMatch(dl_dst=dst_mac, nw_dst=dst_ip, dl_type=2048)
+        to_dst_match = dp.ofproto_parser.OFPMatch(eth_dst=dst_mac, ipv4_dst=dst_ip, eth_type=2048, tcp_dst=179)
 
         if len(path) == 1:
             # src and dst are in same switch
@@ -144,10 +152,8 @@ class FwdBGP(app_manager.RyuApp):
 
     def add_flow(self, datapath, match, actions):
         ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
 
-        mod = datapath.ofproto_parser.OFPFlowMod(
-            datapath=datapath, match=match, cookie=0,
-            command=ofproto.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
-            priority=ofproto.OFP_DEFAULT_PRIORITY,
-            flags=ofproto.OFPFF_SEND_FLOW_REM, actions=actions)
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
+        mod = parser.OFPFlowMod(datapath=datapath, priority=1, match=match, instructions=inst)
         datapath.send_msg(mod)
