@@ -31,6 +31,7 @@ class Fwd(app_manager.RyuApp):
         if path is None:
             # path doesn't exist, drop it
             return
+
         port_no = 0
         if len(path) == 1:
             # src and dst are in same switch

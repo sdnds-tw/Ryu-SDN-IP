@@ -81,6 +81,9 @@ class FwdBGP(app_manager.RyuApp):
         to_dst_match = dp.ofproto_parser.OFPMatch(eth_dst=dst_mac, ipv4_dst=dst_ip, eth_type=2048)
 
         port_no = self.fwd.setup_shortest_path(src_port.dpid, dst_port.dpid, dst_port.port_no, to_dst_match)
+
+        if port_no == None:
+            return
         self.packet_out(dp, msg, port_no)
 
     def get_shortest_path(self, nx_graph, src_dpid, dst_dpid):
