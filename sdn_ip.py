@@ -30,17 +30,6 @@ class SDNIP(app_manager.RyuApp):
         for speaker_id in speaker_ids:
             self.bgp_speaker.neighbor_add(speaker_id, self.cfg_mgr.as_number, is_next_hop_self=True)
 
-    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    def packet_in_handler(self, ev):
-        msg = ev.msg
-
-        pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocol(ethernet.ethernet)
-        if eth is not None and \
-           eth.ethertype == ether_types.ETH_TYPE_LLDP:
-            # ignore lldp packet
-            return
-
     def best_path_change_handler(self, ev):
         self.logger.info('best path changed:')
         self.logger.info('remote_as: %d', ev.remote_as)
