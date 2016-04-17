@@ -106,6 +106,6 @@ class SDNIP(app_manager.RyuApp):
             nexthop_match = dp.ofproto_parser.OFPMatch(ipv4_dst=(prefix_ip, prefix_mask), eth_type=2048)
             pre_actions = [dp.ofproto_parser.OFPActionSetField(eth_dst=nexthop_mac)]
 
-            self.fwf.setup_shortest_path(from_dpid, nexthop_dpid, nexthop_port_no, nexthop_match, pre_actions)
+            self.fwd.setup_shortest_path(from_dpid, nexthop_dpid, nexthop_port_no, nexthop_match, pre_actions)
 
         self.hop_db.install_prefix(prefix)
