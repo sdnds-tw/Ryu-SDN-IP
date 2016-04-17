@@ -1,7 +1,7 @@
 import networkx as nx
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import MAIN_DISPATCHER
+from ryu.controller.handler import MAIN_DISPATCHER, CONFIG_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0, ofproto_v1_3
 from ryu.lib.packet import packet
@@ -81,13 +81,13 @@ class FwdBGP(app_manager.RyuApp):
             return
 
         dst_mac = dst_host.mac
-        to_dst_match = dp.ofproto_parser.OFPMatch(eth_dst=dst_mac, ipv4_dst=dst_ip, eth_type=2048, tcp_dst=179)
+        to_dst_match = dp.ofproto_parser.OFPMatch(eth_dst=dst_mac, ipv4_dst=dst_ip, eth_type=2048)
 
         if len(path) == 1:
             # src and dst are in same switch
             port_no = dst_port.port_no
             actions = [dp.ofproto_parser.OFPActionOutput(port_no)]
-            self.add_flow(dp, to_dst_match, actions)
+            self.add_flow(dp, 1, to_dst_match, actions)
 
             self.packet_out(dp, msg, port_no)
 
@@ -99,7 +99,7 @@ class FwdBGP(app_manager.RyuApp):
             dst_dp = self.get_datapath(dst_dpid)
             dst_port_no = dst_port.port_no
             actions = [dst_dp.ofproto_parser.OFPActionOutput(dst_port_no)]
-            self.add_flow(dst_dp, to_dst_match, actions)
+            self.add_flow(dst_dp, 1, to_dst_match, actions)
 
             # packet out
             port_no = nx_grapth.edge[path[0]][path[1]]['src_port']
@@ -117,7 +117,7 @@ class FwdBGP(app_manager.RyuApp):
         ofproto = dp.ofproto
         actions = [dp.ofproto_parser.OFPActionOutput(out_port)]
         out = dp.ofproto_parser.OFPPacketOut(
-            datapath=dp, in_port=msg.in_port, buffer_id=ofproto.OFP_NO_BUFFER,
+            datapath=dp, in_port=msg.match['in_port'], buffer_id=ofproto.OFP_NO_BUFFER,
             actions=actions, data=msg.data)
         dp.send_msg(out)
 
@@ -148,12 +148,14 @@ class FwdBGP(app_manager.RyuApp):
             port_no = nx_graph.edge[path[index]][path[index + 1]]['src_port']
             dp = self.get_datapath(dpid)
             actions = [dp.ofproto_parser.OFPActionOutput(port_no)]
-            self.add_flow(dp, match, actions)
+            self.add_flow(dp, 1, match, actions)
 
-    def add_flow(self, datapath, match, actions):
+    def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-        mod = parser.OFPFlowMod(datapath=datapath, priority=1, match=match, instructions=inst)
+        mod = parser.OFPFlowMod(datapath=datapath, priority=priority, match=match, instructions=inst)
+        self.logger.info(mod)
         datapath.send_msg(mod)
+
