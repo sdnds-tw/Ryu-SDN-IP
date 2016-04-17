@@ -140,3 +140,13 @@ class FwdBGP(app_manager.RyuApp):
             dp = self.get_datapath(dpid)
             actions = [dp.ofproto_parser.OFPActionOutput(port_no)]
             self.add_flow(dp, match, actions)
+
+    def add_flow(self, datapath, match, actions):
+        ofproto = datapath.ofproto
+
+        mod = datapath.ofproto_parser.OFPFlowMod(
+            datapath=datapath, match=match, cookie=0,
+            command=ofproto.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
+            priority=ofproto.OFP_DEFAULT_PRIORITY,
+            flags=ofproto.OFPFF_SEND_FLOW_REM, actions=actions)
+        datapath.send_msg(mod)
