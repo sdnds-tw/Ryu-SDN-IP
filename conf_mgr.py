@@ -3,7 +3,7 @@ import json
 class SDNIPConfigManager(object):
 
     def __init__(self, config_file_path):
-        super(ConfigManager, self).__init__()
+        super(SDNIPConfigManager, self).__init__()
         self.config_file_path = config_file_path
         self.per_id = {}
         self.per_dpid = {}
@@ -15,14 +15,14 @@ class SDNIPConfigManager(object):
         speakers = configs['speakers']
         local_config = configs['local']
         self.as_number = local_config.get('as_number', 65113)
-        self.router_id = local_config('router_id', '127.0.0.1')
-        self.listen_port = local_config('listen_port', 2000)
+        self.router_id = str(local_config.get('router_id', '127.0.0.1'))
+        self.listen_port = local_config.get('listen_port', 2000)
 
         for speaker in speakers:
             dpid = speaker['dpid']
             port = speaker['port']
             speaker_ids = speaker['speaker_ids']
-            self.per_dpid.setdeafult(dpid, [])
+            self.per_dpid.setdefault(dpid, [])
 
             for speaker_id in speaker_ids:
                 self.per_id.setdefault(speaker_id, {'dpid': dpid, 'port': port})
