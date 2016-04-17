@@ -27,6 +27,9 @@ class FwdBGP(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packet_in_handler(self, ev):
         msg = ev.msg
+        dp = msg.datapath
+        dpid = dp.id
+        ofproto = dp.ofproto
 
         pkt = packet.Packet(msg.data)
         tcp_header = pkt.get_protocol(tcp.tcp)
