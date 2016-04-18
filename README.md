@@ -5,6 +5,10 @@ SDN-IP Ryu version
 
 Original SDN-IP is one of project from ONOS.
 
+Requirement:
+- Ryu v4.1 or higher
+- networkx 1.11 or higher
+
 To use:
 
 Clone Ryu SDN-IP repo
