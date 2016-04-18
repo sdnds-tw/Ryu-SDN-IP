@@ -1,5 +1,6 @@
 import json
 
+
 class SDNIPConfigManager(object):
 
     def __init__(self, config_file_path):
@@ -25,7 +26,8 @@ class SDNIPConfigManager(object):
             self.per_dpid.setdefault(dpid, [])
 
             for speaker_id in speaker_ids:
-                self.per_id.setdefault(speaker_id, {'dpid': dpid, 'port': port})
+                self.per_id.setdefault(speaker_id,
+                                       {'dpid': dpid, 'port': port})
                 self.per_dpid[dpid].append({'port': port, 'id': speaker_id})
 
     def reload_config(self):
@@ -50,8 +52,13 @@ class SDNIPConfigManager(object):
             self.per_dpid.setdeafult(dpid, [])
 
             for speaker_id in speaker_ids:
-                self.per_id.setdefault(speaker_id, {'dpid': dpid, 'port': port, 'mac': mac})
-                self.per_dpid[dpid].append({'port': port, 'id': speaker_id, 'mac': mac})
+                self.per_id.setdefault(speaker_id,
+                                       {'dpid': dpid,
+                                        'port': port,
+                                        'mac': mac})
+                self.per_dpid[dpid].append({'port': port,
+                                            'id': speaker_id,
+                                            'mac': mac})
 
     def get_speaker_connect_port(self, bgp_speaker_id):
         return self.per_id.get(bgp_speaker_id)

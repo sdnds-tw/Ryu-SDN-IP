@@ -24,7 +24,12 @@ class Fwd(app_manager.RyuApp):
         super(Fwd, self).__init__(*args, **kwargs)
         self.dps = {}
 
-    def setup_shortest_path(self, from_dpid, to_dpid, to_port_no, to_dst_match, pre_actions=[]):
+    def setup_shortest_path(self,
+                            from_dpid,
+                            to_dpid,
+                            to_port_no,
+                            to_dst_match,
+                            pre_actions=[]):
         nx_grapth = self.get_nx_graph()
         path = self.get_shortest_path(nx_grapth, from_dpid, to_dpid)
 
@@ -52,7 +57,6 @@ class Fwd(app_manager.RyuApp):
 
         return port_no
 
-
     def get_shortest_path(self, nx_graph, src_dpid, dst_dpid):
 
         if nx.has_path(nx_graph, src_dpid, dst_dpid):
@@ -74,7 +78,10 @@ class Fwd(app_manager.RyuApp):
             dst_dpid = link.dst.dpid
             src_port = link.src.port_no
             dst_port = link.dst.port_no
-            graph.add_edge(src_dpid, dst_dpid, src_port=src_port, dst_port=dst_port)
+            graph.add_edge(src_dpid,
+                           dst_dpid,
+                           src_port=src_port,
+                           dst_port=dst_port)
         return graph
 
     def install_path(self, match, path, nx_graph, pre_actions=[]):
@@ -93,8 +100,12 @@ class Fwd(app_manager.RyuApp):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-        mod = parser.OFPFlowMod(datapath=datapath, priority=priority, match=match, instructions=inst)
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
+                                             actions)]
+        mod = parser.OFPFlowMod(datapath=datapath,
+                                priority=priority,
+                                match=match,
+                                instructions=inst)
         datapath.send_msg(mod)
 
     def get_datapath(self, dpid):
