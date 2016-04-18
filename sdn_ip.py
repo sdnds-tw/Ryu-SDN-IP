@@ -14,6 +14,7 @@ from conf_mgr import SDNIPConfigManager
 from fwd import Fwd
 from hop_db import HopDB
 
+
 class SDNIP(app_manager.RyuApp):
 
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -21,23 +22,26 @@ class SDNIP(app_manager.RyuApp):
         'fwd': Fwd,
         'hop_db': HopDB
     }
+
     def __init__(self, *args, **kwargs):
         super(SDNIP, self).__init__(*args, **kwargs)
         self.fwd = kwargs['fwd']
         self.hop_db = kwargs['hop_db']
         self.cfg_mgr = SDNIPConfigManager('config.json')
-        self.logger.info("Creating speaker with as number: %d, router id: %s, port: %d",
-                         self.cfg_mgr.as_number, self.cfg_mgr.router_id, self.cfg_mgr.listen_port)
-        self.bgp_speaker = BGPSpeaker(self.cfg_mgr.as_number, self.cfg_mgr.router_id,
-                 bgp_server_port=self.cfg_mgr.listen_port,
-                 best_path_change_handler=self.best_path_change_handler,
-                 peer_down_handler=self.peer_down_handler,
-                 peer_up_handler=self.peer_up_handler)
+        self.bgp_speaker =\
+        BGPSpeaker(self.cfg_mgr.as_number,
+                   self.cfg_mgr.router_id,
+                   bgp_server_port=self.cfg_mgr.listen_port,
+                   best_path_change_handler=self.best_path_change_handler,
+                   peer_down_handler=self.peer_down_handler,
+                   peer_up_handler=self.peer_up_handler)
 
         speaker_ids = self.cfg_mgr.get_all_speaker_id()
 
         for speaker_id in speaker_ids:
-            self.bgp_speaker.neighbor_add(speaker_id, self.cfg_mgr.as_number, is_next_hop_self=True)
+            self.bgp_speaker.neighbor_add(speaker_id,
+                                          self.cfg_mgr.as_number,
+                                          is_next_hop_self=True)
 
         hub.spawn(self.prefix_check_loop)
 
@@ -93,7 +97,6 @@ class SDNIP(app_manager.RyuApp):
         if nexthop_host is None:
             return
 
-        speaker_ids = self.cfg_mgr.get_all_speaker_id()
         nexthop_port = nexthop_host.port
         nexthop_mac = nexthop_host.mac
         nexthop_dpid = nexthop_port.dpid
@@ -101,12 +104,19 @@ class SDNIP(app_manager.RyuApp):
         prefix_ip = str(IPNetwork(prefix).ip)
         prefix_mask = str(IPNetwork(prefix).netmask)
 
-
         for dp in self.fwd.get_all_datapaths():
             from_dpid = dp.id
-            nexthop_match = dp.ofproto_parser.OFPMatch(ipv4_dst=(prefix_ip, prefix_mask), eth_type=2048)
-            pre_actions = [dp.ofproto_parser.OFPActionSetField(eth_dst=nexthop_mac)]
+            nexthop_match =\
+            dp.ofproto_parser.OFPMatch(ipv4_dst=(prefix_ip, prefix_mask),
+                                       eth_type=2048)
+            pre_actions = [
+                dp.ofproto_parser.OFPActionSetField(eth_dst=nexthop_mac)
+                ]
 
-            self.fwd.setup_shortest_path(from_dpid, nexthop_dpid, nexthop_port_no, nexthop_match, pre_actions)
+            self.fwd.setup_shortest_path(from_dpid,
+                                         nexthop_dpid,
+                                         nexthop_port_no,
+                                         nexthop_match,
+                                         pre_actions)
 
         self.hop_db.install_prefix(prefix)

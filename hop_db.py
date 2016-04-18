@@ -16,7 +16,8 @@ class HopDB(object):
         return (prefix in self.installed_prefix)
 
     def get_uninstalled_prefix_list(self):
-        result = [prefix for prefix in self.hops.keys() if (prefix not in self.installed_prefix)]
+        result = [prefix for prefix in
+                  self.hops.keys() if (prefix not in self.installed_prefix)]
         return result
 
     def install_prefix(self, prefix):
