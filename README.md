@@ -18,7 +18,7 @@ cp config.sample.json config.json
 ```
 
 Configuration file:
-```json
+```js
 {
   "local": {
     "as_number": 65113,  /* SDN-IP AS number */
