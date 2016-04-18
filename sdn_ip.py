@@ -97,7 +97,6 @@ class SDNIP(app_manager.RyuApp):
         if nexthop_host is None:
             return
 
-        speaker_ids = self.cfg_mgr.get_all_speaker_id()
         nexthop_port = nexthop_host.port
         nexthop_mac = nexthop_host.mac
         nexthop_dpid = nexthop_port.dpid
