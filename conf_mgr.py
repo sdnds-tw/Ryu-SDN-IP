@@ -50,3 +50,12 @@ class SDNIPConfigManager(object):
 
     def get_speaker_mac(self, bgp_speaker_id):
         return self.per_id.get(bgp_speaker_id)['mac']
+
+    def is_internal_host(self, ip):
+
+        for network in self.networks:
+            nw = IPNetwork(network)
+            if ip in nw:
+                return True
+
+        return False
