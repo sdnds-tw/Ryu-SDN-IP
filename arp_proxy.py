@@ -23,6 +23,7 @@ class ArpProxy(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     @packet_in_filter(RequiredTypeFilter, {'types': [ipv4.ipv4]})
     def ipv4_packet_in_handler(self, ev):
+        msg = ev.msg
         pkt = packet.Packet(msg.data)
         ipv4_header = pkt.get_protocol(ipv4.ipv4)
         self.arp_table.setdefault(ipv4_header.src, eth.src)
