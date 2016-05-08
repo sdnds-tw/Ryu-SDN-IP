@@ -8,6 +8,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ipv4
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import arp
+from ryu.lib.fp_pktinfilter import packet_in_filter
 
 
 class ArpProxy(app_manager.RyuApp):
@@ -18,25 +19,21 @@ class ArpProxy(app_manager.RyuApp):
         self.arp_table = {}
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    def _packet_in_handler(self, ev):
+    @packet_in_filter(ipv4.ipv4)
+    def ipv4_packet_in_handler(self, ev):
+        pkt = packet.Packet(msg.data)
+        ipv4_header = pkt.get_protocol(ipv4.ipv4)
+        self.arp_table.setdefault(ipv4_header.src, eth.src)
+
+    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
+    @packet_in_filter(arp.arp)
+    def arp_packet_in_handler(self, ev):
         msg = ev.msg
         datapath = msg.datapath
         in_port = msg.match['in_port']
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
         pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocol(ethernet.ethernet)
-
-        if eth.ethertype == ether_types.ETH_TYPE_IP:
-            # record host mac address
-            ipv4_header = pkt.get_protocol(ipv4.ipv4)
-            self.arp_table.setdefault(ipv4_header.src, eth.src)
-            return
-
-        if eth.ethertype != ether_types.ETH_TYPE_ARP:
-            # ignore non-arp packet
-            return
-
         arp_header = pkt.get_protocol(arp.arp)
         src_ip = arp_header.src_ip
         src_mac = arp_header.src_mac
