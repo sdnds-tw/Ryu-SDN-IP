@@ -56,6 +56,17 @@ class SDNIP(app_manager.RyuApp):
         self.logger.info('label: %s', ev.label)
         self.logger.info('is_withdraw: %s', ev.is_withdraw)
         self.logger.info('')
+
+        # Ignore internal network
+        prefix_nw = IPNetwork(ev.prefix)
+
+        for internal_network in self.cfg_mgr.get_internal_networks():
+            int_nw = IPNetwork(internal_network)
+
+            if int_nw == prefix_nw:
+                self.logger.info('Internal network, ignored.')
+                return
+
         self.hop_db.add_hop(ev.prefix, ev.nexthop)
         self.install_best_path(ev.prefix, ev.nexthop)
 
