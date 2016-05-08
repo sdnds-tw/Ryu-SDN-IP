@@ -22,3 +22,6 @@ class HopDB(object):
 
     def install_prefix(self, prefix):
         self.installed_prefix.append(prefix)
+
+    def get_all_prefixes(self):
+        return hops.keys()
