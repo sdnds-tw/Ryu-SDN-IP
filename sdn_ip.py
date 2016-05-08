@@ -69,7 +69,7 @@ class SDNIP(app_manager.RyuApp):
         self.logger.info('remote ip: %s', remote_ip)
         self.logger.info('')
 
-    def get_nexthop_host(self, ip):
+    def get_host(self, ip):
         hosts = topo_api.get_all_host(self)
 
         for host in hosts:
@@ -92,7 +92,7 @@ class SDNIP(app_manager.RyuApp):
 
     def install_best_path(self, prefix, nexthop):
 
-        nexthop_host = self.get_nexthop_host(nexthop)
+        nexthop_host = self.get_host(nexthop)
         self.logger.debug("nexthop host: %s", str(nexthop_host))
         if nexthop_host is None:
             return
