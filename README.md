@@ -27,7 +27,10 @@ Configuration file:
   "local": {
     "as_number": 65113,  /* SDN-IP AS number */
     "router_id": "192.168.1.10",  /* SDN-IP router id(IP address) */
-    "listen_port": 2000  /* listen port */
+    "listen_port": 2000,  /* listen port */
+    "networks": [  /* local as network prefixes */
+      "192.168.10.0/24"
+    ]
   },
   "speakers": [  /* Internal BGP speakers for SDN-IP */
     {
