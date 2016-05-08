@@ -42,7 +42,7 @@ class ArpProxy(app_manager.RyuApp):
         dst_ip = arp_header.dst_ip
         dst_mac = None
 
-        if cfg_mgr.is_internal_host(src_ip):
+        if self.cfg_mgr.is_internal_host(src_ip):
             # if internal host sent arp request, reply router mac address
             first_speaker_id = None
 
