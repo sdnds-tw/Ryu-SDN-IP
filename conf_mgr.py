@@ -1,34 +1,12 @@
 import json
-
+from netaddr import IPNetwork
 
 class SDNIPConfigManager(object):
 
     def __init__(self, config_file_path):
         super(SDNIPConfigManager, self).__init__()
         self.config_file_path = config_file_path
-        self.per_id = {}
-        self.per_dpid = {}
-        speakers = []
-
-        with open(self.config_file_path, 'r') as config_file:
-            configs = json.load(config_file)
-
-        speakers = configs['speakers']
-        local_config = configs['local']
-        self.as_number = local_config.get('as_number', 65113)
-        self.router_id = str(local_config.get('router_id', '127.0.0.1'))
-        self.listen_port = local_config.get('listen_port', 2000)
-
-        for speaker in speakers:
-            dpid = speaker['dpid']
-            port = speaker['port']
-            speaker_ids = speaker['speaker_ids']
-            self.per_dpid.setdefault(dpid, [])
-
-            for speaker_id in speaker_ids:
-                self.per_id.setdefault(speaker_id,
-                                       {'dpid': dpid, 'port': port})
-                self.per_dpid[dpid].append({'port': port, 'id': speaker_id})
+        self.reload_config()
 
     def reload_config(self):
 
@@ -41,15 +19,16 @@ class SDNIPConfigManager(object):
         speakers = configs['speakers']
         local_config = configs['local']
         self.as_number = local_config.get('as_number', 65113)
-        self.router_id = local_config('router_id', '127.0.0.1')
-        self.listen_port = local_config('listen_port', 2000)
+        self.router_id = local_config.get('router_id', '127.0.0.1')
+        self.listen_port = local_config.get('listen_port', 2000)
+        self.networks = local_config.get('networks', [])
 
         for speaker in speakers:
             dpid = speaker['dpid']
             port = speaker['port']
             mac = speaker['mac']
             speaker_ids = speaker['speaker_ids']
-            self.per_dpid.setdeafult(dpid, [])
+            self.per_dpid.setdefault(dpid, [])
 
             for speaker_id in speaker_ids:
                 self.per_id.setdefault(speaker_id,
