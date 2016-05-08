@@ -16,6 +16,7 @@ class ArpProxy(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(ArpProxy, self).__init__(*args, **kwargs)
+        self.cfg_mgr = SDNIPConfigManager('config.json')
         self.arp_table = {}
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -38,7 +39,20 @@ class ArpProxy(app_manager.RyuApp):
         src_ip = arp_header.src_ip
         src_mac = arp_header.src_mac
         dst_ip = arp_header.dst_ip
-        dst_mac = self.arp_table.get(dst_ip)
+        dst_mac = None
+
+        if cfg_mgr.is_internal_host(src_ip):
+            # if internal host sent arp request, reply router mac address
+            first_speaker_id = None
+
+            if self.cfg_mgr.get_all_speaker_id():
+                first_speaker_id = self.cfg_mgr.get_all_speaker_id()[0]
+
+            if first_speaker_id:
+                dst_mac = self.cfg_mgr.get_speaker_mac(first_speaker_id)
+        else:
+            dst_mac = self.arp_table.get(dst_ip)
+
         self.arp_table.setdefault(src_ip, src_mac)
 
         if arp_header.opcode != arp.ARP_REQUEST:
