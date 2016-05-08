@@ -11,10 +11,10 @@ from ryu.lib.packet import ipv4
 from ryu.lib.packet import ether_types
 from ryu.topology import api as topo_api
 from ryu.services.protocols.bgp.bgpspeaker import BGPSpeaker
+from ryu.lib.ofp_pktinfilter import packet_in_filter
 from conf_mgr import SDNIPConfigManager
 from fwd import Fwd
 from hop_db import HopDB
-from ryu.lib.fp_pktinfilter import packet_in_filter
 
 
 class SDNIP(app_manager.RyuApp):

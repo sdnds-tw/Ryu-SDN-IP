@@ -8,7 +8,8 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ipv4
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import arp
-from ryu.lib.fp_pktinfilter import packet_in_filter
+from ryu.lib.ofp_pktinfilter import packet_in_filter
+from conf_mgr import SDNIPConfigManager
 
 
 class ArpProxy(app_manager.RyuApp):
