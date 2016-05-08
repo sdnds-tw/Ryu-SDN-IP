@@ -59,3 +59,6 @@ class SDNIPConfigManager(object):
                 return True
 
         return False
+
+    def get_internal_networks(self):
+        return self.networks
