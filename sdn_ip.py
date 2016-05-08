@@ -30,7 +30,7 @@ class SDNIP(app_manager.RyuApp):
         self.cfg_mgr = SDNIPConfigManager('config.json')
         self.bgp_speaker =\
         BGPSpeaker(self.cfg_mgr.as_number,
-                   self.cfg_mgr.router_id,
+                   str(self.cfg_mgr.router_id),
                    bgp_server_port=self.cfg_mgr.listen_port,
                    best_path_change_handler=self.best_path_change_handler,
                    peer_down_handler=self.peer_down_handler,
