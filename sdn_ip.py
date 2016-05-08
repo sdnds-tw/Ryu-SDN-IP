@@ -11,7 +11,7 @@ from ryu.lib.packet import ipv4
 from ryu.lib.packet import ether_types
 from ryu.topology import api as topo_api
 from ryu.services.protocols.bgp.bgpspeaker import BGPSpeaker
-from ryu.lib.ofp_pktinfilter import packet_in_filter
+from ryu.lib.ofp_pktinfilter import packet_in_filter, RequiredTypeFilter
 from conf_mgr import SDNIPConfigManager
 from fwd import Fwd
 from hop_db import HopDB
@@ -145,7 +145,7 @@ class SDNIP(app_manager.RyuApp):
                                          pre_actions)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    @packet_in_filter(ipv4.ipv4)
+    @packet_in_filter(RequiredTypeFilter, {'types': [ipv4.ipv4]})
     def internal_host_route_handler(self, ev):
         '''
         Handle internal network host routing

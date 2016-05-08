@@ -8,7 +8,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ipv4
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import arp
-from ryu.lib.ofp_pktinfilter import packet_in_filter
+from ryu.lib.ofp_pktinfilter import packet_in_filter, RequiredTypeFilter
 from conf_mgr import SDNIPConfigManager
 
 
@@ -21,14 +21,14 @@ class ArpProxy(app_manager.RyuApp):
         self.arp_table = {}
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    @packet_in_filter(ipv4.ipv4)
+    @packet_in_filter(RequiredTypeFilter, {'types': [ipv4.ipv4]})
     def ipv4_packet_in_handler(self, ev):
         pkt = packet.Packet(msg.data)
         ipv4_header = pkt.get_protocol(ipv4.ipv4)
         self.arp_table.setdefault(ipv4_header.src, eth.src)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    @packet_in_filter(arp.arp)
+    @packet_in_filter(RequiredTypeFilter, {'types': [arp.arp]})
     def arp_packet_in_handler(self, ev):
         msg = ev.msg
         datapath = msg.datapath
