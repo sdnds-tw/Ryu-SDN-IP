@@ -29,7 +29,7 @@ class SDNIP(app_manager.RyuApp):
         super(SDNIP, self).__init__(*args, **kwargs)
         self.fwd = kwargs['fwd']
         self.hop_db = kwargs['hop_db']
-        self.cfg_mgr = SDNIPConfigManager('config.json')
+        self.cfg_mgr = SDNIPConfigManager()
         self.bgp_speaker =\
             BGPSpeaker(self.cfg_mgr.as_number,
                        str(self.cfg_mgr.router_id),

@@ -26,7 +26,7 @@ class FwdBGP(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(FwdBGP, self).__init__(*args, **kwargs)
-        self.cfg_mgr = SDNIPConfigManager('config.json')
+        self.cfg_mgr = SDNIPConfigManager()
         self.fwd = kwargs['fwd']
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
