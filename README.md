@@ -62,5 +62,3 @@ $ ryu-manager --observe-links arp_proxy.py fwd_bgp.py sdn_ip.py
 Reference:
 [SDN-IP wiki](https://wiki.onosproject.org/display/ONOS/SDN-IP)
 
-TODO:
-- Add local network routing
