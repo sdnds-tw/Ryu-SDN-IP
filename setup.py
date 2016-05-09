@@ -17,7 +17,7 @@ with open('VERSION', 'r') as version_file:
     if version and not re.match("[0-9]+\\.[0-9]+\\.[0-9]+", version):
         version = None
 
-if version:
+if not version:
     print("Can't read version")
 
 else:
