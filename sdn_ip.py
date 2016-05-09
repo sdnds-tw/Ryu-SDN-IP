@@ -175,4 +175,4 @@ class SDNIP(app_manager.RyuApp):
         if not self.cfg_mgr.is_internal_host(dst_ip):
             return
 
-        install_internal_host_path(dst_ip)
+        self.install_internal_host_path(dst_ip)
