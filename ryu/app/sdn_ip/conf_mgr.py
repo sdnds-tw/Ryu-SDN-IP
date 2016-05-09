@@ -13,7 +13,7 @@ CONF.register_cli_opts([
 
 class SDNIPConfigManager(object):
 
-    def __init__(self, config_file_path):
+    def __init__(self):
         super(SDNIPConfigManager, self).__init__()
         self.config_file_path = CONF.sdn_ip_cfg_file
         self.reload_config()

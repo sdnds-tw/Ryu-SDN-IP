@@ -17,7 +17,7 @@ class ArpProxy(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(ArpProxy, self).__init__(*args, **kwargs)
-        self.cfg_mgr = SDNIPConfigManager('config.json')
+        self.cfg_mgr = SDNIPConfigManager()
         self.arp_table = {}
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
