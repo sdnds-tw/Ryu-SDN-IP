@@ -31,12 +31,12 @@ class SDNIP(app_manager.RyuApp):
         self.hop_db = kwargs['hop_db']
         self.cfg_mgr = SDNIPConfigManager('config.json')
         self.bgp_speaker =\
-        BGPSpeaker(self.cfg_mgr.as_number,
-                   str(self.cfg_mgr.router_id),
-                   bgp_server_port=self.cfg_mgr.listen_port,
-                   best_path_change_handler=self.best_path_change_handler,
-                   peer_down_handler=self.peer_down_handler,
-                   peer_up_handler=self.peer_up_handler)
+            BGPSpeaker(self.cfg_mgr.as_number,
+                       str(self.cfg_mgr.router_id),
+                       bgp_server_port=self.cfg_mgr.listen_port,
+                       best_path_change_handler=self.best_path_change_handler,
+                       peer_down_handler=self.peer_down_handler,
+                       peer_up_handler=self.peer_up_handler)
 
         speaker_ids = self.cfg_mgr.get_all_speaker_id()
 
@@ -120,8 +120,8 @@ class SDNIP(app_manager.RyuApp):
         for dp in self.fwd.get_all_datapaths():
             from_dpid = dp.id
             nexthop_match =\
-            dp.ofproto_parser.OFPMatch(ipv4_dst=(prefix_ip, prefix_mask),
-                                       eth_type=2048)
+                dp.ofproto_parser.OFPMatch(ipv4_dst=(prefix_ip, prefix_mask),
+                                           eth_type=2048)
             pre_actions = [
                 dp.ofproto_parser.OFPActionSetField(eth_dst=nexthop_mac)
                 ]
@@ -143,8 +143,7 @@ class SDNIP(app_manager.RyuApp):
         for dp in self.fwd.get_all_datapaths():
             from_dpid = dp.id
             host_match =\
-            dp.ofproto_parser.OFPMatch(ipv4_dst=ip,
-                                       eth_type=2048)
+                dp.ofproto_parser.OFPMatch(ipv4_dst=ip, eth_type=2048)
             pre_actions = [
                 dp.ofproto_parser.OFPActionSetField(eth_dst=host.mac)
                 ]
