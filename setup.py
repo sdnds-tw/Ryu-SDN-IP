@@ -3,7 +3,7 @@ try:
 except ImportError:
     pass
 
-import setuptools
+from setuptools import setup, find_packages
 import re
 
 # read VERSION file
@@ -21,4 +21,4 @@ if not version:
     print("Can't read version")
 
 else:
-    setuptools.setup(name='Ryu SDN-IP', version=version)
+    setup(name='Ryu SDN-IP', version=version, packages=find_packages('.'))
