@@ -1,9 +1,6 @@
 Ryu SDN-IP
 ====
 
-##About
-----
-
 SDN-IP Ryu version
 
 Original SDN-IP is one of project from [ONOS](http://onosproject.org/).
