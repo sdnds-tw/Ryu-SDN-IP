@@ -1,27 +1,42 @@
 Ryu SDN-IP
 ====
 
+##About
+----
+
 SDN-IP Ryu version
 
-Original SDN-IP is one of project from ONOS.
+Original SDN-IP is one of project from [ONOS](http://onosproject.org/).
 
-Requirement:
+##Requirement
+----
+
 - Ryu v4.1 or higher
 - networkx 1.11 or higher
 
-To use:
+##Install
+----
 
-Clone Ryu SDN-IP repo
+1. Clone Ryu SDN-IP repo
+
 ```bash
 $ git clone https://github.com/TakeshiTseng/Ryu-SDN-IP.git && cd Ryu-SDN-IP
 ```
 
-Create config file for Ryu SDN-IP
+2. Install dependences
+
+```bash
+$ pip install -r requirements.txt
+```
+
+3. Create config file for Ryu SDN-IP
+
 ```bash
 cp config.sample.json config.json
 ```
 
-Configuration file:
+Configuration file example:
+
 ```js
 {
   "local": {
@@ -53,9 +68,10 @@ Configuration file:
 }
 ```
 
-Start Ryu SDN-IP applications:
+4. Start Ryu SDN-IP applications:
+
 ```bash
-$ ryu-manager --observe-links arp_proxy.py fwd_bgp.py sdn_ip.py
+$ ryu-manager --observe-links sdnip.arp_proxy sdnip.fwd_bgp sdnip.sdn_ip
 ```
 
 Reference:
