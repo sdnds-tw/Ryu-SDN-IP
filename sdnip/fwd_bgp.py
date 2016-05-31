@@ -11,8 +11,8 @@ from ryu.lib.packet import ipv4
 from ryu.lib.packet import tcp
 from ryu.lib.packet import ether_types
 from ryu.topology import api as topo_api
-from conf_mgr import SDNIPConfigManager
-from fwd import Fwd
+from .conf_mgr import SDNIPConfigManager
+from .fwd import Fwd
 
 
 class FwdBGP(app_manager.RyuApp):
@@ -26,7 +26,7 @@ class FwdBGP(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(FwdBGP, self).__init__(*args, **kwargs)
-        self.cfg_mgr = SDNIPConfigManager('config.json')
+        self.cfg_mgr = SDNIPConfigManager()
         self.fwd = kwargs['fwd']
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)

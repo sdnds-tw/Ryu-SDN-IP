@@ -12,9 +12,9 @@ from ryu.lib.packet import ether_types
 from ryu.topology import api as topo_api
 from ryu.services.protocols.bgp.bgpspeaker import BGPSpeaker
 from ryu.lib.ofp_pktinfilter import packet_in_filter, RequiredTypeFilter
-from conf_mgr import SDNIPConfigManager
-from fwd import Fwd
-from hop_db import HopDB
+from .conf_mgr import SDNIPConfigManager
+from .fwd import Fwd
+from .hop_db import HopDB
 
 
 class SDNIP(app_manager.RyuApp):
@@ -29,7 +29,7 @@ class SDNIP(app_manager.RyuApp):
         super(SDNIP, self).__init__(*args, **kwargs)
         self.fwd = kwargs['fwd']
         self.hop_db = kwargs['hop_db']
-        self.cfg_mgr = SDNIPConfigManager('config.json')
+        self.cfg_mgr = SDNIPConfigManager()
         self.bgp_speaker =\
             BGPSpeaker(self.cfg_mgr.as_number,
                        str(self.cfg_mgr.router_id),

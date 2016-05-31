@@ -1,12 +1,21 @@
 import json
+from ryu import cfg
 from netaddr import IPNetwork
+
+CONF = cfg.CONF
+
+CONF.register_cli_opts([
+    cfg.StrOpt('sdn-ip-cfg-file',
+               default="/usr/local/etc/ryu-sdn-ip/config.json",
+               help='location of SDN-IP config file')
+])
 
 
 class SDNIPConfigManager(object):
 
-    def __init__(self, config_file_path):
+    def __init__(self):
         super(SDNIPConfigManager, self).__init__()
-        self.config_file_path = config_file_path
+        self.config_file_path = CONF.sdn_ip_cfg_file
         self.reload_config()
 
     def reload_config(self):
