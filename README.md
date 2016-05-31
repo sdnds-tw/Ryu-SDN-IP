@@ -68,7 +68,7 @@ Configuration file example:
 4. Start Ryu SDN-IP applications:
 
 ```bash
-$ ryu-manager --observe-links sdnip.arp_proxy sdnip.fwd_bgp sdnip.sdn_ip
+$ ./bin/sdnip-mgr --observe-links sdnip.arp_proxy sdnip.fwd_bgp sdnip.sdn_ip
 ```
 
 Reference:
