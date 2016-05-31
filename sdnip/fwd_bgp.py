@@ -11,8 +11,8 @@ from ryu.lib.packet import ipv4
 from ryu.lib.packet import tcp
 from ryu.lib.packet import ether_types
 from ryu.topology import api as topo_api
-from conf_mgr import SDNIPConfigManager
-from fwd import Fwd
+from .conf_mgr import SDNIPConfigManager
+from .fwd import Fwd
 
 
 class FwdBGP(app_manager.RyuApp):
