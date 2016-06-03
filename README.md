@@ -72,4 +72,11 @@ $ ./bin/sdnip-mgr --observe-links sdnip.arp_proxy sdnip.fwd_bgp sdnip.sdn_ip
 ```
 
 Reference:
+
 [SDN-IP wiki](https://wiki.onosproject.org/display/ONOS/SDN-IP)
+
+TODO:
+
+- [ ] Internal link failure handling
+- [ ] Switch failure handling
+- [ ] Integrate with [DragonKnight](https://github.com/Ryu-Dragon-Knight/Dragon-Knight)
