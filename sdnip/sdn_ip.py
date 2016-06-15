@@ -110,6 +110,7 @@ class SDNIP(app_manager.RyuApp):
         nexthop_host = self.get_host(nexthop)
         self.logger.debug("nexthop host: %s", str(nexthop_host))
         if nexthop_host is None:
+            self.logger.debug("Can't find nexthop host: %s", str(nexthop_host))
             return
 
         nexthop_port = nexthop_host.port
