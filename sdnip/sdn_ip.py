@@ -15,6 +15,7 @@ from ryu.lib.ofp_pktinfilter import packet_in_filter, RequiredTypeFilter
 from .conf_mgr import SDNIPConfigManager
 from .fwd import Fwd
 from .hop_db import HopDB
+from .path_db import PathDB
 
 
 class SDNIP(app_manager.RyuApp):
@@ -22,7 +23,8 @@ class SDNIP(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
     _CONTEXTS = {
         'fwd': Fwd,
-        'hop_db': HopDB
+        'hop_db': HopDB,
+        'path_db': PathDB
     }
 
     def __init__(self, *args, **kwargs):
