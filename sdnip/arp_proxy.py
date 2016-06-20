@@ -1,3 +1,5 @@
+import json
+from ryu import cfg
 from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER, CONFIG_DISPATCHER
@@ -11,6 +13,13 @@ from ryu.lib.packet import arp
 from ryu.lib.ofp_pktinfilter import packet_in_filter, RequiredTypeFilter
 from .conf_mgr import SDNIPConfigManager
 
+CONF = cfg.CONF
+CONF.register_cli_opts([
+    cfg.StrOpt('static-arp-table',
+               default=None,
+               help='location of SDN-IP config file')
+])
+
 
 class ArpProxy(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -19,6 +28,13 @@ class ArpProxy(app_manager.RyuApp):
         super(ArpProxy, self).__init__(*args, **kwargs)
         self.cfg_mgr = SDNIPConfigManager()
         self.arp_table = {}
+
+        if CONF.static_arp_table is not None:
+            # load static arp table
+            static_arp_table = json.load(open(CONF.static_arp_table, "r"))
+
+            for record in static_arp_table:
+                self.arp_table.setdefault(record['ip'], record['mac'])
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     @packet_in_filter(RequiredTypeFilter, {'types': [ipv4.ipv4]})
