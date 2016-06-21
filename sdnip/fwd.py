@@ -29,7 +29,9 @@ class Fwd(app_manager.RyuApp):
                             to_dpid,
                             to_port_no,
                             to_dst_match,
-                            pre_actions=[]):
+                            pre_actions=None):
+        if pre_actions is None:
+            pre_actions = []
         nx_grapth = self.get_nx_graph()
         path = self.get_shortest_path(nx_grapth, from_dpid, to_dpid)
 
@@ -84,10 +86,12 @@ class Fwd(app_manager.RyuApp):
                            dst_port=dst_port)
         return graph
 
-    def install_path(self, match, path, nx_graph, pre_actions=[]):
+    def install_path(self, match, path, nx_graph, pre_actions=None):
         '''
         path : [1, 2, 3]
         '''
+        if pre_actions is None:
+            pre_actions = []
         for index, dpid in enumerate(path[:-1]):
             # edge[path[index]][path[index + 1]]
             # => path[index] to path[index+1] port
