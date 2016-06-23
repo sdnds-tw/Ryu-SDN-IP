@@ -17,6 +17,14 @@ from .fwd import Fwd
 from .hop_db import HopDB
 from .path_db import PathDB
 
+# integrate with DragonKnight CLI
+with_dk = False
+try:
+    from dragon_knight import dk_plugin
+    with_dk = True
+except ImportError as e:
+    pass
+
 
 class SDNIP(app_manager.RyuApp):
 
@@ -48,6 +56,10 @@ class SDNIP(app_manager.RyuApp):
                                           is_next_hop_self=True)
 
         hub.spawn(self.prefix_check_loop)
+
+        if with_dk:
+            dk_plugin.DynamicLoader.register_custom_cmd('sdn-ip:info', self.cmd_self_info)
+            dk_plugin.DynamicLoader.register_custom_cmd('sdn-ip:routes', self.cmd_list_routes)
 
     def best_path_change_handler(self, ev):
         self.logger.info('best path changed:')
@@ -178,3 +190,25 @@ class SDNIP(app_manager.RyuApp):
             return
 
         self.install_internal_host_path(dst_ip)
+
+    # commands
+    def cmd_self_info(self):
+        information = "AS number : {}\n" + \
+                      "Router ID: {}\n" + \
+                      "BGP port: {}\n"
+
+        information = information.format(self.cfg_mgr.as_number,
+                                         str(self.cfg_mgr.router_id),
+                                         self.cfg_mgr.listen_port)
+
+        return information
+
+    def cmd_list_routes(self):
+        prefix_list = self.hop_db.get_all_prefixes()
+        result = "Prefix\tNext Hop\tPath installed\n"
+        result = result + "===========================================\n"
+
+        for prefix in prefix_list:
+            result = result + prefix + "\t"
+            result = result + self.hop_db.get_nexthop(prefix)
+            result = result + str(self.hop_db.is_prefix_installed(prefix))
