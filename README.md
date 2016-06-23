@@ -80,3 +80,4 @@ TODO:
 - [ ] Internal link failure handling
 - [ ] Switch failure handling
 - [ ] Integrate with [DragonKnight](https://github.com/Ryu-Dragon-Knight/Dragon-Knight)
+- [ ] Reconfigurable
