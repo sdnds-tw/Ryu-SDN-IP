@@ -18,11 +18,15 @@ class Fwd(app_manager.RyuApp):
     '''
     Forward utilization
     '''
+    _CONTEXTS = {
+        'path_db': PathDB
+    }
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
         super(Fwd, self).__init__(*args, **kwargs)
         self.dps = {}
+        self.path_db = kwargs['path_db']
 
     def setup_shortest_path(self,
                             from_dpid,
