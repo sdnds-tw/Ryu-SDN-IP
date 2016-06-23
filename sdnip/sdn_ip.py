@@ -63,7 +63,6 @@ class SDNIP(app_manager.RyuApp):
             dk_plugin.DynamicLoader.register_custom_cmd('sdn-ip:routes', self.cmd_list_routes)
             dk_plugin.DynamicLoader.register_custom_cmd('sdn-ip:flows', self.cmd_get_flows)
 
-
     def best_path_change_handler(self, ev):
         self.logger.info('best path changed:')
         self.logger.info('remote_as: %d', ev.remote_as)
