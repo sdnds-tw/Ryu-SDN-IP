@@ -38,4 +38,12 @@ class PathDB(object):
         return self.ip_to_dp.get(ip_mask, {})
 
     def get_ips_by_outport(self, dpid, outport):
-         return self.ip_d
+        result = []
+        ip_port_list = self.dp_to_ip.get(dpid)
+
+        for ip_port in ip_port_list.items():
+            if outport in ip_port[1]:
+                result.append(ip_port[0])
+                break
+
+        return result
