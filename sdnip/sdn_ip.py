@@ -205,10 +205,18 @@ class SDNIP(app_manager.RyuApp):
 
     def cmd_list_routes(self):
         prefix_list = self.hop_db.get_all_prefixes()
-        result = "Prefix\tNext Hop\tPath installed\n"
-        result = result + "===========================================\n"
+        result = "{:<18}{:<15}{}\n".format("Prefix", "Next Hop", "Path installed")
+
+        result = result + "=" * 34 + "\n"
 
         for prefix in prefix_list:
-            result = result + prefix + "\t"
-            result = result + self.hop_db.get_nexthop(prefix)
+            result = result + "{:<18}".format(prefix)
+            _next_hop = self.hop_db.hops.get(prefix)
+
+            if _next_hop is None:
+                _next_hop = "None"
+
+            result = result + "{:<15}".format(_next_hop)
             result = result + str(self.hop_db.is_prefix_installed(prefix))
+
+        return result
