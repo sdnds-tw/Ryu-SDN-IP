@@ -1,3 +1,4 @@
+import json
 from netaddr import IPNetwork
 from ryu.base import app_manager
 from ryu.controller import ofp_event
@@ -5,6 +6,7 @@ from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0, ofproto_v1_3
 from ryu.lib import hub
+from ryu.lib import ofctl_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ipv4
@@ -40,6 +42,7 @@ class SDNIP(app_manager.RyuApp):
         self.fwd = kwargs['fwd']
         self.hop_db = kwargs['hop_db']
         self.cfg_mgr = SDNIPConfigManager()
+        self.waiters = {}
         self.bgp_speaker =\
             BGPSpeaker(self.cfg_mgr.as_number,
                        str(self.cfg_mgr.router_id),
@@ -60,6 +63,8 @@ class SDNIP(app_manager.RyuApp):
         if with_dk:
             dk_plugin.DynamicLoader.register_custom_cmd('sdn-ip:info', self.cmd_self_info)
             dk_plugin.DynamicLoader.register_custom_cmd('sdn-ip:routes', self.cmd_list_routes)
+            dk_plugin.DynamicLoader.register_custom_cmd('sdn-ip:flows', self.cmd_get_flows)
+
 
     def best_path_change_handler(self, ev):
         self.logger.info('best path changed:')
@@ -218,5 +223,18 @@ class SDNIP(app_manager.RyuApp):
 
             result = result + "{:<15}".format(_next_hop)
             result = result + str(self.hop_db.is_prefix_installed(prefix))
+
+        return result
+
+    def cmd_get_flows(self):
+        result = ""
+        for dp in self.fwd.get_all_datapaths():
+            flows = ofctl_v1_3.get_flow_stats(dp, self.waiters, {})
+
+            result = result + "{:0>16}:\n".format(dp.id)
+            result = result + "=" * 17 + "\n"
+
+            for flow in flows:
+                result = result + json.dumps(flow) + "\n"
 
         return result
