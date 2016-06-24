@@ -12,6 +12,7 @@ from ryu.lib.packet import ether_types
 from ryu.lib.packet import tcp, udp
 from ryu.lib.packet import ipv4, arp
 from ryu.topology import api as topo_api
+from .path_db import PathDB
 
 
 class Fwd(app_manager.RyuApp):
