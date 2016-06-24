@@ -223,6 +223,7 @@ class SDNIP(app_manager.RyuApp):
 
             result = result + "{:<15}".format(_next_hop)
             result = result + str(self.hop_db.is_prefix_installed(prefix))
+            result = result + "\n"
 
         return result
 
