@@ -196,6 +196,26 @@ class SDNIP(app_manager.RyuApp):
 
         self.install_internal_host_path(dst_ip)
 
+    @set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
+    def flow_status_reply_handler(self, ev):
+        msg = ev.msg
+        dp = msg.datapath
+
+        if dp.id not in self.waiters:
+            return
+        if msg.xid not in self.waiters[dp.id]:
+            return
+        lock, msgs = self.waiters[dp.id][msg.xid]
+        msgs.append(msg)
+
+        flags = 0
+        flags = dp.ofproto.OFPMPF_REPLY_MORE
+
+        if msg.flags & flags:
+            return
+        del self.waiters[dp.id][msg.xid]
+        lock.set()
+
     # commands
     def cmd_self_info(self):
         information = "AS number : {}\n" + \
