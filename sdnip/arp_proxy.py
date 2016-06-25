@@ -20,6 +20,14 @@ CONF.register_cli_opts([
                help='location of SDN-IP config file')
 ])
 
+# integrate with DragonKnight CLI
+with_dk = False
+try:
+    from dragon_knight import dk_plugin
+    with_dk = True
+except ImportError as e:
+    pass
+
 
 class ArpProxy(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -35,6 +43,10 @@ class ArpProxy(app_manager.RyuApp):
 
             for record in static_arp_table:
                 self.arp_table.setdefault(record['ip'], record['mac'])
+
+        if with_dk:
+            dk_plugin.DynamicLoader.register_custom_cmd('arp-proxy:table', self.cmd_dump_arp_table)
+            dk_plugin.DynamicLoader.register_custom_cmd('arp-proxy:reload_static', self.cmd_reload_static)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     @packet_in_filter(RequiredTypeFilter, {'types': [ipv4.ipv4]})
@@ -108,3 +120,22 @@ class ArpProxy(app_manager.RyuApp):
             in_port=ofproto.OFPP_CONTROLLER,
             actions=actions, data=arp_reply.data)
         datapath.send_msg(out)
+
+    def cmd_dump_arp_table(self):
+        result = "{:<17}{:<17}\n".format("IP", "Mac")
+
+        for record in self.arp_table.items():
+            result = result + "{:<17}{:<17}\n".format(record[0], record[1])
+
+        return result
+
+    def cmd_reload_static(self):
+        result = ""
+        self.arp_table = {}
+
+        if CONF.static_arp_table is not None:
+            # load static arp table
+            static_arp_table = json.load(open(CONF.static_arp_table, "r"))
+
+            for record in static_arp_table:
+                self.arp_table.setdefault(record['ip'], record['mac'])
