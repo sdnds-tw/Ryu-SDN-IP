@@ -134,3 +134,16 @@ class Fwd(app_manager.RyuApp):
             self.dps[dpid] = dp
 
         return self.dps.values()
+
+    def get_all_edge_port(self):
+        edge_ports = set()
+        not_edge_port = set()
+
+        for link in topo_api.get_all_link(self):
+            not_edge_port.add(link.src)
+            not_edge_port.add(link.dst)
+
+        for switch in topo_api.get_all_switch(self)
+            for port in switch.ports:
+                if port not in not_edge_port:
+                    edge_ports.add(port)
