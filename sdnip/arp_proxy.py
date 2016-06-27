@@ -12,6 +12,7 @@ from ryu.lib.packet import ether_types
 from ryu.lib.packet import arp
 from ryu.lib.ofp_pktinfilter import packet_in_filter, RequiredTypeFilter
 from .conf_mgr import SDNIPConfigManager
+from .fwd import Fwd
 
 CONF = cfg.CONF
 CONF.register_cli_opts([
@@ -19,6 +20,8 @@ CONF.register_cli_opts([
                default=None,
                help='location of SDN-IP config file')
 ])
+FAKE_IP = '0.0.0.0'
+FAKE_MAC = 'c0:ff:ee:c0:ff:ee'
 
 # integrate with DragonKnight CLI
 with_dk = False
@@ -31,9 +34,13 @@ except ImportError as e:
 
 class ArpProxy(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    _CONTEXTS = {
+        'fwd': Fwd
+    }
 
     def __init__(self, *args, **kwargs):
         super(ArpProxy, self).__init__(*args, **kwargs)
+        self.fwd = kwargs['fwd']
         self.cfg_mgr = SDNIPConfigManager()
         self.arp_table = {}
 
@@ -46,7 +53,8 @@ class ArpProxy(app_manager.RyuApp):
 
         if with_dk:
             dk_plugin.DynamicLoader.register_custom_cmd('arp-proxy:table', self.cmd_dump_arp_table)
-            dk_plugin.DynamicLoader.register_custom_cmd('arp-proxy:reload_static', self.cmd_reload_static)
+            dk_plugin.DynamicLoader.register_custom_cmd('arp-proxy:reload', self.cmd_reload_static)
+            dk_plugin.DynamicLoader.register_custom_cmd('arp-proxy:who-has', self.cmd_who_has)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     @packet_in_filter(RequiredTypeFilter, {'types': [ipv4.ipv4]})
@@ -139,3 +147,43 @@ class ArpProxy(app_manager.RyuApp):
 
             for record in static_arp_table:
                 self.arp_table.setdefault(record['ip'], record['mac'])
+
+        result = "done"
+
+    def cmd_who_has(self, *args):
+
+        if len(args) == 0:
+            return "Usage: arp-proxy:who-has [IP]"
+
+        arp_req = packet.Packet()
+        arp_req.add_protocol(
+            ethernet.ethernet(
+                ethertype=ether_types.ETH_TYPE_ARP,
+                src=fake_mac,
+                dst='ff:ff:ff:ff:ff:ff'
+            )
+        )
+        arp_req.add_protocol(
+            arp.arp(
+                opcode=arp.ARP_REQUEST,
+                src_ip=FAKE_IP,
+                src_mac=FAKE_MAC,
+                dst_ip=src_ip,
+            )
+        )
+        arp_req.serialize()
+
+        for port in self.fwd.get_all_edge_port():
+            datapath = self.fwd.get_datapath(port.dpid)
+            port_no = port.port_no
+            ofproto = datapath.ofproto
+            parser = datapath.ofproto_parser
+            actions = [parser.OFPActionOutput(port_no)]
+            out = parser.OFPPacketOut(
+                datapath=datapath,
+                buffer_id=ofproto.OFP_NO_BUFFER,
+                in_port=ofproto.OFPP_CONTROLLER,
+                actions=actions, data=arp_req.data)
+            datapath.send_msg(out)
+
+        return "Done"
