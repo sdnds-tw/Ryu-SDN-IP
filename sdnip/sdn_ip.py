@@ -83,8 +83,13 @@ class SDNIP(app_manager.RyuApp):
                 self.logger.info('Internal network, ignored.')
                 return
 
-        self.hop_db.add_hop(ev.prefix, ev.nexthop)
-        self.install_best_path(ev.prefix, ev.nexthop)
+        if ev.is_withdraw:
+            self.hop_db.withdraw(ev.prefix)
+            self.uninstall_best_path(ev.prefix, ev.nexthop)
+
+        else:
+            self.hop_db.add_hop(ev.prefix, ev.nexthop)
+            self.install_best_path(ev.prefix, ev.nexthop)
 
     def peer_down_handler(self, remote_ip, remote_as):
         self.logger.info('peer down:')
@@ -150,6 +155,21 @@ class SDNIP(app_manager.RyuApp):
                                          pre_actions)
 
         self.hop_db.install_prefix(prefix)
+
+    def uninstall_best_path(self, prefix, nexthop):
+
+        prefix_ip = str(IPNetwork(prefix).ip)
+        prefix_mask = str(IPNetwork(prefix).netmask)
+
+        # remove all flow rule for this prefix
+        for dp in self.fwd.get_all_datapaths():
+            match =\
+                dp.ofproto_parser.OFPMatch(ipv4_dst=(prefix_ip, prefix_mask),
+                                       eth_type=2048)
+            flow_del = dp.ofproto_parser.OFPFlowMod(datapath=dp,
+                                    command=OFPFC_DELETE,
+                                    match=match)
+            dp.send_msg(flow_del)
 
     def install_internal_host_path(self, ip):
         host = self.get_host(ip)

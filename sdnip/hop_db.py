@@ -25,3 +25,11 @@ class HopDB(object):
 
     def get_all_prefixes(self):
         return self.hops.keys()
+
+    def withdraw(self, prefix):
+
+        if prefix in self.hops:
+            self.hops.pop(prefix)
+
+        if prefix in self.installed_prefix:
+            self.installed_prefix.remove(prefix)
